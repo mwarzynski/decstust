@@ -84,6 +84,7 @@ mod tests {
                 assert!(false);
             }
         }
+        assert_eq!(1, manager.get_all().len());
     }
 
     #[test]
