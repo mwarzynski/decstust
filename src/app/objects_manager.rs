@@ -66,23 +66,17 @@ mod tests {
     #[test]
     fn can_create_object() {
         let mut manager = ObjectsInMemory::new();
-        manager.create(Object {
-            id: String::from("1"),
-            value: 10.0,
-        });
+        manager.create(Object::new(10.0));
         assert_eq!(1, manager.get_all().len());
     }
 
     #[test]
     fn can_modify_object() {
-        let object_id = String::from("1");
         let mut manager = ObjectsInMemory::new();
-        manager.create(Object {
-            id: object_id.clone(),
-            value: 10.0,
-        });
-        manager.modify(&object_id, 15.0);
-        match manager.get(&object_id) {
+        let object = Object::new(10.0);
+        manager.create(object.clone());
+        manager.modify(&object.id, 15.0);
+        match manager.get(&object.id) {
             Some(object) => {
                 assert_eq!(15.0, object.value);
             }
@@ -94,13 +88,10 @@ mod tests {
 
     #[test]
     fn can_delete_object() {
-        let object_id = String::from("1");
+        let object = Object::new(10.0);
         let mut manager = ObjectsInMemory::new();
-        manager.create(Object {
-            id: object_id.clone(),
-            value: 10.0,
-        });
-        manager.delete(&object_id);
+        manager.create(object.clone());
+        manager.delete(&object.id);
         assert_eq!(0, manager.get_all().len());
     }
 }

@@ -12,10 +12,22 @@ pub mod objects_manager;
 //      - Store which allows to keep the state declaration specified by the user,
 pub mod state;
 
+use uuid::Uuid;
+
 #[derive(Clone, Debug)]
 pub struct Object {
     id: String,
     value: f64,
+}
+
+impl Object {
+    pub fn new(value: f64) -> Self {
+        let id = Uuid::new_v4();
+        return Object {
+            id: id.to_string(),
+            value: value,
+        };
+    }
 }
 
 pub fn start() {

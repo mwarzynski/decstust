@@ -50,12 +50,10 @@ mod tests {
     #[test]
     fn can_add_and_delete_objects() {
         let mut state = StoreInMemory::new();
-        state.upsert(Object {
-            id: String::from("test123"),
-            value: 10.1337,
-        });
+        let object = Object::new(10.1337);
+        state.upsert(object.clone());
         assert_eq!(1, state.get_all().len());
-        state.delete(&String::from("test123"));
+        state.delete(&object.id);
         assert_eq!(0, state.get_all().len());
     }
 }
