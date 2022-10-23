@@ -6,7 +6,7 @@ pub trait StoreQuerier {
 }
 
 pub trait StoreCommander {
-    fn add(&mut self, o: Object);
+    fn upsert(&mut self, o: Object);
     fn delete(&mut self, object_id: &String);
 }
 
@@ -29,11 +29,33 @@ impl StoreQuerier for StoreInMemory {
 }
 
 impl StoreCommander for StoreInMemory {
-    fn add(&mut self, o: Object) {
+    fn upsert(&mut self, o: Object) {
         self.objects.insert(o.id.clone(), o);
     }
 
     fn delete(&mut self, object_id: &String) {
         self.objects.remove(object_id);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::app::Object;
+
+    use crate::app::state::StoreInMemory;
+
+    use crate::app::state::StoreCommander;
+    use crate::app::state::StoreQuerier;
+
+    #[test]
+    fn can_add_and_delete_objects() {
+        let mut state = StoreInMemory::new();
+        state.upsert(Object {
+            id: String::from("test123"),
+            value: 10.1337,
+        });
+        assert_eq!(1, state.get_all().len());
+        state.delete(&String::from("test123"));
+        assert_eq!(0, state.get_all().len());
     }
 }
