@@ -1,7 +1,9 @@
-// Actions Planner
+use uuid::Uuid;
+
+// Actions
 //      - compares current real-world state with the declaration and outputs actions needed to
 //      achieve desired state
-pub mod actions_planner;
+pub mod actions;
 
 // Objects manager in CQRS (command query responsibility segregation)
 //      - Query to understand current state,
@@ -11,8 +13,6 @@ pub mod objects_manager;
 // Desired State Declaration Store
 //      - Store which allows to keep the state declaration specified by the user,
 pub mod state;
-
-use uuid::Uuid;
 
 #[derive(Clone, Debug)]
 pub struct Object {

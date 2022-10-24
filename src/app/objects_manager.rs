@@ -2,7 +2,7 @@ use crate::app::Object;
 use std::collections::HashMap;
 
 pub trait Querier {
-    fn get(&self, object_id: &String) -> Option<&Object>;
+    fn get(&self, object_id: &String) -> Option<Object>;
     fn get_all(&self) -> Vec<Object>;
 }
 
@@ -25,9 +25,13 @@ impl ObjectsInMemory {
 }
 
 impl Querier for ObjectsInMemory {
-    fn get(&self, object_id: &String) -> Option<&Object> {
-        return self.objects.get(object_id);
+    fn get(&self, object_id: &String) -> Option<Object> {
+        match self.objects.get(object_id) {
+            Some(o) => Some(o.clone()),
+            None => None,
+        }
     }
+
     fn get_all(&self) -> Vec<Object> {
         return self.objects.values().cloned().collect();
     }
@@ -41,7 +45,7 @@ impl Commander for ObjectsInMemory {
     fn modify(&mut self, object_id: &String, value: f64) {
         match self.objects.get(object_id) {
             Some(object) => {
-                let mut new_object = object.clone();
+                let mut new_object = (*object).clone();
                 new_object.value = value;
                 self.objects.insert(object_id.clone(), new_object);
             }

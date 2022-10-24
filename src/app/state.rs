@@ -1,12 +1,12 @@
 use crate::app::Object;
 use std::collections::HashMap;
 
-pub trait StoreQuerier {
+pub trait Querier {
     fn get_all(&self) -> Vec<Object>;
 }
 
-pub trait StoreCommander {
-    fn upsert(&mut self, o: Object);
+pub trait Commander {
+    fn upsert(&mut self, object: Object);
     fn delete(&mut self, object_id: &String);
 }
 
@@ -22,15 +22,15 @@ impl StoreInMemory {
     }
 }
 
-impl StoreQuerier for StoreInMemory {
+impl Querier for StoreInMemory {
     fn get_all(&self) -> Vec<Object> {
         return self.objects.values().cloned().collect();
     }
 }
 
-impl StoreCommander for StoreInMemory {
-    fn upsert(&mut self, o: Object) {
-        self.objects.insert(o.id.clone(), o);
+impl Commander for StoreInMemory {
+    fn upsert(&mut self, object: Object) {
+        self.objects.insert(object.id.clone(), object);
     }
 
     fn delete(&mut self, object_id: &String) {
@@ -44,8 +44,8 @@ mod tests {
 
     use crate::app::state::StoreInMemory;
 
-    use crate::app::state::StoreCommander;
-    use crate::app::state::StoreQuerier;
+    use crate::app::state::Commander;
+    use crate::app::state::Querier;
 
     #[test]
     fn can_add_and_delete_objects() {
