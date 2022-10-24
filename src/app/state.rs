@@ -1,7 +1,6 @@
 use crate::app::Object;
 use crate::app::ObjectID;
 use std::collections::HashMap;
-use uuid::Uuid;
 
 pub trait Querier {
     fn get_all(&self) -> Vec<Object>;
@@ -40,19 +39,18 @@ impl Commander for StoreInMemory {
     }
 }
 
-pub fn chaos(store: &mut StoreInMemory, magic: u8) {
-    match magic {
+pub fn chaos(store: &mut StoreInMemory) {
+    match rand::random::<u8>() % 8 {
         1 => {
             // CREATE
-            let value = Uuid::new_v4().as_bytes()[0];
-            store.upsert(Object::new(value as f64))
+            store.upsert(Object::new(rand::random::<f64>() * 100.0))
         }
         2 => {
             // MODIFY
             let objects = store.get_all();
             if objects.len() > 0 {
                 let mut object = objects[0].clone();
-                object.value = 1337.0;
+                object.value = rand::random::<f64>() * 100.0;
                 store.upsert(object);
             }
         }

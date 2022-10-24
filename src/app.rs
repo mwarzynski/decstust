@@ -41,8 +41,7 @@ pub fn start() {
     let mut objects_manager = objects_manager::ObjectsInMemory::new();
 
     loop {
-        let magic = Uuid::new_v4().as_bytes()[0] % 5;
-        state::chaos(&mut state_manager, magic);
+        state::chaos(&mut state_manager);
 
         let mut planner = actions::Planner::new(&state_manager, &objects_manager);
         planner.plan();
