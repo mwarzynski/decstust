@@ -1,4 +1,5 @@
 use crate::app::Object;
+use crate::app::ObjectID;
 use std::collections::HashMap;
 
 pub trait Querier {
@@ -7,11 +8,11 @@ pub trait Querier {
 
 pub trait Commander {
     fn upsert(&mut self, object: Object);
-    fn delete(&mut self, object_id: &String);
+    fn delete(&mut self, object_id: &ObjectID);
 }
 
 pub struct StoreInMemory {
-    objects: HashMap<String, Object>,
+    objects: HashMap<ObjectID, Object>,
 }
 
 impl StoreInMemory {
@@ -30,10 +31,10 @@ impl Querier for StoreInMemory {
 
 impl Commander for StoreInMemory {
     fn upsert(&mut self, object: Object) {
-        self.objects.insert(object.id.clone(), object);
+        self.objects.insert(object.id, object);
     }
 
-    fn delete(&mut self, object_id: &String) {
+    fn delete(&mut self, object_id: &ObjectID) {
         self.objects.remove(object_id);
     }
 }

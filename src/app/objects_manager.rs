@@ -1,19 +1,20 @@
 use crate::app::Object;
+use crate::app::ObjectID;
 use std::collections::HashMap;
 
 pub trait Querier {
-    fn get(&self, object_id: &String) -> Option<Object>;
+    fn get(&self, object_id: &ObjectID) -> Option<Object>;
     fn get_all(&self) -> Vec<Object>;
 }
 
 pub trait Commander {
     fn create(&mut self, object: Object);
-    fn modify(&mut self, object_id: &String, value: f64);
-    fn delete(&mut self, object_id: &String);
+    fn modify(&mut self, object_id: &ObjectID, value: f64);
+    fn delete(&mut self, object_id: &ObjectID);
 }
 
 pub struct ObjectsInMemory {
-    objects: HashMap<String, Object>,
+    objects: HashMap<ObjectID, Object>,
 }
 
 impl ObjectsInMemory {
@@ -25,7 +26,7 @@ impl ObjectsInMemory {
 }
 
 impl Querier for ObjectsInMemory {
-    fn get(&self, object_id: &String) -> Option<Object> {
+    fn get(&self, object_id: &ObjectID) -> Option<Object> {
         match self.objects.get(object_id) {
             Some(o) => Some(o.clone()),
             None => None,
@@ -42,7 +43,7 @@ impl Commander for ObjectsInMemory {
         self.objects.insert(object.id.clone(), object);
     }
 
-    fn modify(&mut self, object_id: &String, value: f64) {
+    fn modify(&mut self, object_id: &ObjectID, value: f64) {
         match self.objects.get(object_id) {
             Some(object) => {
                 let mut new_object = (*object).clone();
@@ -53,7 +54,7 @@ impl Commander for ObjectsInMemory {
         }
     }
 
-    fn delete(&mut self, object_id: &String) {
+    fn delete(&mut self, object_id: &ObjectID) {
         self.objects.remove(object_id);
     }
 }
