@@ -17,9 +17,9 @@ pub struct StoreInMemory {
 
 impl StoreInMemory {
     pub fn new() -> Self {
-        return StoreInMemory {
+        StoreInMemory {
             objects: HashMap::new(),
-        };
+        }
     }
 }
 
@@ -48,8 +48,8 @@ pub fn chaos(store: &mut StoreInMemory) {
         2 => {
             // MODIFY
             let objects = store.get_all();
-            if objects.len() > 0 {
-                let mut object = objects[0].clone();
+            if !objects.is_empty() {
+                let mut object = objects[0];
                 object.value = rand::random::<f64>() * 100.0;
                 store.upsert(object);
             }
@@ -57,7 +57,7 @@ pub fn chaos(store: &mut StoreInMemory) {
         3 => {
             // DELETE
             let objects = store.get_all();
-            if objects.len() > 0 {
+            if !objects.is_empty() {
                 store.delete(&objects[0].id);
             }
         }
@@ -78,7 +78,7 @@ mod tests {
     fn can_add_and_delete_objects() {
         let mut state = StoreInMemory::new();
         let object = Object::new(10.1337);
-        state.upsert(object.clone());
+        state.upsert(object);
         assert_eq!(1, state.get_all().len());
         state.delete(&object.id);
         assert_eq!(0, state.get_all().len());

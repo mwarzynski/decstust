@@ -17,13 +17,13 @@ pub struct OperationCreate {
 
 impl OperationCreate {
     pub fn new(object: Object) -> Self {
-        return OperationCreate { object: object };
+        OperationCreate { object }
     }
 }
 
 impl Operation for OperationCreate {
     fn exec(&self, objects_manager: &mut dyn ObjectsManagerCommander) {
-        objects_manager.create(self.object.clone());
+        objects_manager.create(self.object);
     }
 }
 
@@ -35,10 +35,10 @@ pub struct OperationModify {
 
 impl OperationModify {
     pub fn new(object_id: ObjectID, value: f64) -> Self {
-        return OperationModify {
-            object_id: object_id,
-            value: value,
-        };
+        OperationModify {
+            object_id,
+            value,
+        }
     }
 }
 
@@ -55,9 +55,9 @@ pub struct OperationDelete {
 
 impl OperationDelete {
     pub fn new(object_id: ObjectID) -> Self {
-        return OperationDelete {
-            object_id: object_id,
-        };
+        OperationDelete {
+            object_id,
+        }
     }
 }
 
@@ -81,11 +81,11 @@ impl Planner {
     ) -> Self {
         let state_objects = state_querier.get_all();
         let real_objects = objects_fetcher.get_all();
-        return Planner {
+        Planner {
             state_desired: state_objects,
             state_existing: real_objects,
             operations: Vec::new(),
-        };
+        }
     }
 
     pub fn plan(&mut self) {

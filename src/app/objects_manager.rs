@@ -20,18 +20,15 @@ pub struct ObjectsInMemory {
 
 impl ObjectsInMemory {
     pub fn new() -> Self {
-        return ObjectsInMemory {
+        ObjectsInMemory {
             objects: HashMap::new(),
-        };
+        }
     }
 }
 
 impl Querier for ObjectsInMemory {
     fn get(&self, object_id: &ObjectID) -> Option<Object> {
-        match self.objects.get(object_id) {
-            Some(o) => Some(o.clone()),
-            None => None,
-        }
+        self.objects.get(object_id).copied()
     }
 
     fn get_all(&self) -> Vec<Object> {
@@ -41,15 +38,15 @@ impl Querier for ObjectsInMemory {
 
 impl Commander for ObjectsInMemory {
     fn create(&mut self, object: Object) {
-        self.objects.insert(object.id.clone(), object);
+        self.objects.insert(object.id, object);
     }
 
     fn modify(&mut self, object_id: &ObjectID, value: f64) {
         match self.objects.get(object_id) {
             Some(object) => {
-                let mut new_object = (*object).clone();
+                let mut new_object = *object;
                 new_object.value = value;
-                self.objects.insert(object_id.clone(), new_object);
+                self.objects.insert(*object_id, new_object);
             }
             None => {}
         }
@@ -86,7 +83,7 @@ mod tests {
     fn can_modify_object() {
         let mut manager = ObjectsInMemory::new();
         let object = Object::new(10.0);
-        manager.create(object.clone());
+        manager.create(object);
         manager.modify(&object.id, 15.0);
         match manager.get(&object.id) {
             Some(object) => {
@@ -103,7 +100,7 @@ mod tests {
     fn can_delete_object() {
         let object = Object::new(10.0);
         let mut manager = ObjectsInMemory::new();
-        manager.create(object.clone());
+        manager.create(object);
         manager.delete(&object.id);
         assert_eq!(0, manager.get_all().len());
     }
