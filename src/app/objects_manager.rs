@@ -1,6 +1,7 @@
 use crate::app::Object;
 use crate::app::ObjectID;
 use std::collections::HashMap;
+use std::fmt;
 
 pub trait Querier {
     fn get(&self, object_id: &ObjectID) -> Option<Object>;
@@ -56,6 +57,12 @@ impl Commander for ObjectsInMemory {
 
     fn delete(&mut self, object_id: &ObjectID) {
         self.objects.remove(object_id);
+    }
+}
+
+impl fmt::Display for ObjectsInMemory {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.objects)
     }
 }
 

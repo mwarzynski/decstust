@@ -1,6 +1,7 @@
 use crate::app::Object;
 use crate::app::ObjectID;
 use std::collections::HashMap;
+use uuid::Uuid;
 
 pub trait Querier {
     fn get_all(&self) -> Vec<Object>;
@@ -36,6 +37,33 @@ impl Commander for StoreInMemory {
 
     fn delete(&mut self, object_id: &ObjectID) {
         self.objects.remove(object_id);
+    }
+}
+
+pub fn chaos(store: &mut StoreInMemory, magic: u8) {
+    match magic {
+        1 => {
+            // CREATE
+            let value = Uuid::new_v4().as_bytes()[0];
+            store.upsert(Object::new(value as f64))
+        }
+        2 => {
+            // MODIFY
+            let objects = store.get_all();
+            if objects.len() > 0 {
+                let mut object = objects[0].clone();
+                object.value = 1337.0;
+                store.upsert(object);
+            }
+        }
+        3 => {
+            // DELETE
+            let objects = store.get_all();
+            if objects.len() > 0 {
+                store.delete(&objects[0].id);
+            }
+        }
+        _ => {}
     }
 }
 

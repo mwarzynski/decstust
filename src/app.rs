@@ -1,3 +1,4 @@
+use std::{thread, time::Duration};
 use uuid::Uuid;
 
 // Actions
@@ -9,6 +10,7 @@ pub mod actions;
 //      - Query to understand current state,
 //      - Command to apply actions in order to achieve desired state,
 pub mod objects_manager;
+use crate::app::objects_manager::Querier;
 
 // Desired State Declaration Store
 //      - Store which allows to keep the state declaration specified by the user,
@@ -34,4 +36,24 @@ impl Object {
 
 pub fn start() {
     println!("[app] init");
+
+    let mut state_manager = state::StoreInMemory::new();
+    let mut objects_manager = objects_manager::ObjectsInMemory::new();
+
+    loop {
+        let magic = Uuid::new_v4().as_bytes()[0] % 5;
+        state::chaos(&mut state_manager, magic);
+
+        let mut planner = actions::Planner::new(&state_manager, &objects_manager);
+        planner.plan();
+        planner.print_operations();
+        planner.apply(&mut objects_manager);
+
+        println!(
+            "[objects] number of objects: {}",
+            objects_manager.get_all().len()
+        );
+
+        thread::sleep(Duration::from_millis(1000));
+    }
 }

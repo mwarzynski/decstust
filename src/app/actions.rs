@@ -140,7 +140,13 @@ impl Planner {
         }
     }
 
-    fn apply(&self, objects_manager: &mut dyn ObjectsManagerCommander) {
+    pub fn print_operations(&self) {
+        for operation in &self.operations {
+            println!("[actions] {:?}", operation);
+        }
+    }
+
+    pub fn apply(&self, objects_manager: &mut dyn ObjectsManagerCommander) {
         for operation in &self.operations {
             operation.exec(objects_manager);
         }
