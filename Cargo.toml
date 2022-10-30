@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 uuid = { version = "0.2", features = ["v4"] }
 rand = "0.4.6"
+rusqlite = "0.28.0"

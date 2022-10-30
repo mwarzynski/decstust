@@ -34,7 +34,7 @@ impl Object {
 pub fn start() {
     println!("[app] init");
 
-    let mut state_manager = state::StoreInMemory::new();
+    let mut state_manager = state::sqlite::Store::new().unwrap();
     let mut objects_manager = objects_manager::ObjectsInMemory::new();
 
     loop {

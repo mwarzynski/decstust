@@ -1,86 +1,59 @@
 use crate::app::Object;
 use crate::app::ObjectID;
-use std::collections::HashMap;
 
-pub trait Querier {
-    fn get_all(&self) -> Vec<Object>;
+use core::result::Result;
+use std::error::Error;
+
+pub mod in_memory;
+pub mod sqlite;
+
+pub trait StoreQuerier {
+    fn get_all(&self) -> Result<Vec<Object>, Box<dyn Error>>;
 }
 
-pub trait Commander {
-    fn upsert(&mut self, object: Object);
-    fn delete(&mut self, object_id: &ObjectID);
+pub trait StoreCommander {
+    fn upsert(&mut self, object: Object) -> Result<(), Box<dyn Error>>;
+    fn delete(&mut self, object_id: &ObjectID) -> Result<(), Box<dyn Error>>;
 }
 
-pub struct StoreInMemory {
-    objects: HashMap<ObjectID, Object>,
-}
+pub trait Store: StoreQuerier + StoreCommander {}
 
-impl StoreInMemory {
-    pub fn new() -> Self {
-        StoreInMemory {
-            objects: HashMap::new(),
-        }
-    }
-}
-
-impl Querier for StoreInMemory {
-    fn get_all(&self) -> Vec<Object> {
-        return self.objects.values().cloned().collect();
-    }
-}
-
-impl Commander for StoreInMemory {
-    fn upsert(&mut self, object: Object) {
-        self.objects.insert(object.id, object);
-    }
-
-    fn delete(&mut self, object_id: &ObjectID) {
-        self.objects.remove(object_id);
-    }
-}
-
-pub fn chaos(store: &mut StoreInMemory) {
+pub fn chaos(state: &mut dyn Store) {
     match rand::random::<u8>() % 8 {
         1 => {
             // CREATE
-            store.upsert(Object::new(rand::random::<f64>() * 100.0))
+            state
+                .upsert(Object::new(rand::random::<f64>() * 100.0))
+                .unwrap()
         }
         2 => {
             // MODIFY
-            let objects = store.get_all();
-            if !objects.is_empty() {
-                let mut object = objects[0];
-                object.value = rand::random::<f64>() * 100.0;
-                store.upsert(object);
+            match state.get_all() {
+                Ok(objects) => {
+                    if !objects.is_empty() {
+                        let mut object = objects[0];
+                        object.value = rand::random::<f64>() * 100.0;
+                        state.upsert(object).unwrap();
+                    }
+                }
+                Err(err) => {
+                    println!("[state] modify: get all objects: {:?}", err);
+                }
             }
         }
         3 => {
             // DELETE
-            let objects = store.get_all();
-            if !objects.is_empty() {
-                store.delete(&objects[0].id);
+            match state.get_all() {
+                Ok(objects) => {
+                    if !objects.is_empty() {
+                        state.delete(&objects[0].id).unwrap();
+                    }
+                }
+                Err(err) => {
+                    println!("[state] delete: get all objects: {:?}", err);
+                }
             }
         }
         _ => {}
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::app::Object;
-
-    use crate::app::state::StoreInMemory;
-
-    use crate::app::state::Commander;
-    use crate::app::state::Querier;
-
-    #[test]
-    fn can_add_and_delete_objects() {
-        let mut state = StoreInMemory::new();
-        let object = Object::new(10.1337);
-        state.upsert(object);
-        assert_eq!(1, state.get_all().len());
-        state.delete(&object.id);
-        assert_eq!(0, state.get_all().len());
     }
 }

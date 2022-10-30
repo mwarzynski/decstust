@@ -1,7 +1,7 @@
 use crate::app::Object;
 use crate::app::ObjectID;
 
-use crate::app::state::Querier as StateQuerier;
+use crate::app::state::StoreQuerier as StateQuerier;
 
 use crate::app::objects_manager::Commander as ObjectsManagerCommander;
 use crate::app::objects_manager::Querier as ObjectsManagerQuerier;
@@ -35,10 +35,7 @@ pub struct OperationModify {
 
 impl OperationModify {
     pub fn new(object_id: ObjectID, value: f64) -> Self {
-        OperationModify {
-            object_id,
-            value,
-        }
+        OperationModify { object_id, value }
     }
 }
 
@@ -55,9 +52,7 @@ pub struct OperationDelete {
 
 impl OperationDelete {
     pub fn new(object_id: ObjectID) -> Self {
-        OperationDelete {
-            object_id,
-        }
+        OperationDelete { object_id }
     }
 }
 
@@ -79,7 +74,7 @@ impl Planner {
         state_querier: &dyn StateQuerier,
         objects_fetcher: &dyn ObjectsManagerQuerier,
     ) -> Self {
-        let state_objects = state_querier.get_all();
+        let state_objects = state_querier.get_all().unwrap();
         let real_objects = objects_fetcher.get_all();
         Planner {
             state_desired: state_objects,
@@ -163,15 +158,15 @@ mod tests {
     use crate::app::objects_manager::ObjectsInMemory;
     use crate::app::objects_manager::Querier as OMQuerier;
 
-    use crate::app::state::Commander as StateCommander;
-    use crate::app::state::StoreInMemory;
+    use crate::app::state::in_memory::Store;
+    use crate::app::state::StoreCommander as StateCommander;
 
     #[test]
     fn can_plan_objects_creation() {
-        let mut state = StoreInMemory::new();
+        let mut state = Store::new();
         let mut objects_manager = ObjectsInMemory::new();
 
-        state.upsert(Object::new(10.0));
+        state.upsert(Object::new(10.0)).unwrap();
 
         let mut planner = Planner::new(&state, &objects_manager);
         planner.plan();
@@ -183,13 +178,13 @@ mod tests {
     #[test]
     fn can_plan_objects_modification() {
         let mut object = Object::new(10.0);
-        let mut state = StoreInMemory::new();
+        let mut state = Store::new();
         let mut objects_manager = ObjectsInMemory::new();
 
         objects_manager.create(object);
 
         object.value = 1337.0;
-        state.upsert(object);
+        state.upsert(object).unwrap();
 
         let mut planner = Planner::new(&state, &objects_manager);
         planner.plan();
@@ -206,7 +201,7 @@ mod tests {
     #[test]
     fn can_plan_objects_deletion() {
         let object = Object::new(10.0);
-        let state = StoreInMemory::new();
+        let state = Store::new();
         let mut objects_manager = ObjectsInMemory::new();
 
         objects_manager.create(object);
