@@ -48,7 +48,9 @@ impl Commander for ObjectsInMemory {
                 new_object.value = value;
                 self.objects.insert(*object_id, new_object);
             }
-            None => {}
+            None => {
+                panic!("attempt to modify not-existing file")
+            }
         }
     }
 
@@ -90,7 +92,7 @@ mod tests {
                 assert_eq!(15.0, object.value);
             }
             None => {
-                assert!(false);
+                panic!("could not get previously added object");
             }
         }
         assert_eq!(1, manager.get_all().len());

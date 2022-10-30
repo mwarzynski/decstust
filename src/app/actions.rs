@@ -194,7 +194,7 @@ mod tests {
             Some(object_modified) => {
                 assert_eq!(1337.0, object_modified.value);
             }
-            None => assert!(false),
+            None => panic!("could not get previously added object"),
         }
     }
 
