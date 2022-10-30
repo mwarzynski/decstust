@@ -27,10 +27,7 @@ pub struct Object {
 impl Object {
     pub fn new(value: f64) -> Self {
         let id = Uuid::new_v4();
-        Object {
-            id,
-            value,
-        }
+        Object { id, value }
     }
 }
 
